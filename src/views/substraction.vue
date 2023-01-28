@@ -55,7 +55,7 @@
           <v-col>
             <v-sheet rounded="xl">
               <v-row justify="center">
-                <h1 class="ml-5">Addition</h1>
+                <h1 class="ml-5">Substraction</h1>
               </v-row>
               <v-row justify="center">
                 <v-card width="300" variant="flat">
@@ -69,7 +69,7 @@
                         :rules="[rules.number, rules.required]" 
                         hint="Valid number">
                       </v-text-field>
-                      <h1>+</h1>
+                      <h1>-</h1>
                       <v-text-field 
                         class="ml-1" 
                         variant="outlined" 
@@ -147,44 +147,43 @@ export default defineComponent({
     name: "test",
     data() {
         return {
-          checkBalance: false,
-          balance: "0",
-          result: "0",
-          valid: false,
-          v1: 0,
-          v2: 0,
-          themeColor: "light",
-          msgWindow: {
-              show: false,
-              title: "",
-              msg: ""
-          },
-          snackbar: false,
-          snackbar_msg: "",
-          snackbar_timeout: 2000,
-          userinfo: { username: "", user_id: "" },
-          loader: null,
-          loading: false,
-          loadingOp: false,
-          menu_items: [
-              { type: "addition", icon: "mdi-plus-circle" },
-              { type: "substraction", icon: "mdi-minus-circle" },
-              { type: "multiplication", icon: "mdi-close-circle" },
-              { type: "division", icon: "mdi-division-box" },
-              { type: "square_root", icon: "mdi-square-root-box" },
-              { type: "random_string", icon: "mdi-code-string" },
-          ],
-          rules: {
-              number: (value: any) => {
-                  return /^[0-9]*$/.test(value) || "Only numbers";
-              },
-              required: (v: any) => !!v || "Number is required",
-          }
-      };
+            balance: "0",
+            result: "0",
+            valid: false,
+            v1: 0,
+            v2: 0,
+            themeColor: "light",
+            msgWindow: {
+                show: false,
+                title: "",
+                msg: ""
+            },
+            snackbar: false,
+            snackbar_msg: "",
+            snackbar_timeout: 2000,
+            userinfo: { username: "", user_id: "" },
+            loader: null,
+            loading: false,
+            loadingOp: false,
+            menu_items: [
+                { type: "addition", icon: "mdi-plus-circle" },
+                { type: "substraction", icon: "mdi-minus-circle" },
+                { type: "multiplication", icon: "mdi-close-circle" },
+                { type: "division", icon: "mdi-division-box" },
+                { type: "square_root", icon: "mdi-square-root-box" },
+                { type: "random_string", icon: "mdi-code-string" },
+            ],
+            rules: {
+                number: (value: any) => {
+                    return /^[0-9]*$/.test(value) || "Only numbers";
+                },
+                required: (v: any) => !!v || "Number is required",
+            }
+        };
     },
     methods: {
       async check_Balance(){
-        await axios.post(import.meta.env.VITE_API_URL + "operations/cost/addition")
+        await axios.post(import.meta.env.VITE_API_URL + "operations/cost/substraction")
           .then(res => {
             const balance = Number(this.balance)
             const cost = Number(res.data.cost)
@@ -209,8 +208,8 @@ export default defineComponent({
             v2: Number(this.v2),
             user_id: Number(this.userinfo.user_id),
             user_balance: this.balance
-        }
-        await axios.post(import.meta.env.VITE_API_URL + "sum", data)
+        };
+        await axios.post(import.meta.env.VITE_API_URL + "sub", data)
             .then(res => {
             this.result = res.data.result;
             this.snackbar_msg = res.data.result;
@@ -220,56 +219,56 @@ export default defineComponent({
         })
         .catch(err => {
           this.msgWindow.msg="Error trying to get the operation result"
-                this.msgWindow.title="Error"
-                this.msgWindow.show= true
+          this.msgWindow.title="Error"
+          this.msgWindow.show= true
         })
       },
       focusInit() {
           (this.$refs.v1 as any).focus();
       },
       logout() {
-          (this.loader as any) = "loading";
-          localStorage.removeItem("user-info");
-          setTimeout(() => {
-              this.$router.push({ name: "login" });
-          }, 1000);
+        (this.loader as any) = "loading";
+        localStorage.removeItem("user-info");
+        setTimeout(() => {
+            this.$router.push({ name: "login" });
+        }, 1000);
       },
       handleFunc(action: string) {
-        this.snackbar_msg = action;
-        this.snackbar = true;
-        switch (action) {
-          case "records": {
-              this.$router.push({ name: "home" });
-              break;
+          this.snackbar_msg = action;
+          this.snackbar = true;
+          switch (action) {
+              case "records": {
+                  this.$router.push({ name: "home" });
+                  break;
+              }
+              case "addition": {
+                  this.$router.push({ name: "addition" });
+                  break;
+              }
+              case "substraction": {
+                  this.$router.push({ name: "substraction" });
+                  break;
+              }
+              case "multiplication": {
+                  this.$router.push({ name: "multiplication" });
+                  break;
+              }
+              case "division": {
+                  this.$router.push({ name: "division" });
+                  break;
+              }
+              case "square_root": {
+                  this.$router.push({ name: "square_root" });
+                  break;
+              }
+              case "random_string": {
+                  this.$router.push({ name: "random_string" });
+                  break;
+              }
+              default: {
+                  this.$router.push({ name: "home" });
+              }
           }
-          case "addition": {
-              this.$router.push({ name: "addition" });
-              break;
-          }
-          case "substraction": {
-              this.$router.push({ name: "substraction" });
-              break;
-          }
-          case "multiplication": {
-              this.$router.push({ name: "multiplication" });
-              break;
-          }
-          case "division": {
-              this.$router.push({ name: "division" });
-              break;
-          }
-          case "square_root": {
-              this.$router.push({ name: "square_root" });
-              break;
-          }
-          case "random_string": {
-              this.$router.push({ name: "random_string" });
-              break;
-          }
-          default: {
-              this.$router.push({ name: "home" });
-          }
-        }
       },
       check_scheme() {
           if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -279,7 +278,7 @@ export default defineComponent({
               const newColorScheme = event.matches ? "dark" : "light";
               this.themeColor = newColorScheme;
           });
-        },
+      }
     },
     watch: {
         loader() {

@@ -12,6 +12,7 @@
             size="40"
           ></v-avatar>
           <span>{{ userinfo.username }}</span>
+          <span> - Balance: <v-icon icon="mdi-credit-card"></v-icon> ${{ balance }}</span>
         </v-col>
         <v-spacer></v-spacer>
 
@@ -27,7 +28,6 @@
           <v-col cols="12" lg="2" md="2" sm="3" class="py-0">
             <v-sheet rounded="xl">
               <v-list rounded="xl" density="compact">
-                
                   <v-list-subheader>Operations</v-list-subheader>
                     <v-list-item value="records" @click="handleFunc('records')" active-color="red">
                       <template v-slot:prepend>
@@ -136,8 +136,6 @@
       v-model="msgWindow.show"
       transition="dialog-bottom-transition"
     >
-      
-
       <v-card>
         <v-toolbar
               color="red"
@@ -147,7 +145,7 @@
           {{ msgWindow.msg }}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" block @click="msgWindow.show = false">Entendido</v-btn>
+          <v-btn color="primary" block @click="msgWindow.show = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -160,136 +158,129 @@ import { defineComponent } from 'vue'
 
 
 export default defineComponent({
-  name: 'test',
-  
-  data () {
-      return {
-        sel: 1,
-        records: [{id: '', operation_id: '', user_id: '', amount: '', user_balance: '', operation_response: '', date: '' }],
-        themeColor: 'light',
-        msgWindow: {
-          show: false,
-          title: '',
-          msg: ''
+    name: "test",
+    data() {
+        return {
+            balance: "",
+            sel: 1,
+            records: [{ id: "", operation_id: "", user_id: "", amount: "", user_balance: "", operation_response: "", date: "" }],
+            themeColor: "light",
+            msgWindow: {
+                show: false,
+                title: "",
+                msg: ""
+            },
+            metodo_pago: "efectivo",
+            finded: false,
+            snackbar: false,
+            snackbar_msg: "",
+            snackbar_timeout: 2000,
+            userinfo: { username: "", user_id: "" },
+            
+            menu_items: [
+                { type: "addition", icon: "mdi-plus-circle" },
+                { type: "substraction", icon: "mdi-minus-circle" },
+                { type: "multiplication", icon: "mdi-close-circle" },
+                { type: "division", icon: "mdi-division-box" },
+                { type: "square_root", icon: "mdi-square-root-box" },
+                { type: "random_string", icon: "mdi-code-string" },
+            ],
+        };
+    },
+    methods: {
+        handleFunc(action: string) {
+            this.snackbar_msg = action;
+            this.snackbar = true;
+            switch (action) {
+                case "records": {
+                    this.$router.push({ name: "home" });
+                    break;
+                }
+                case "addition": {
+                    this.$router.push({ name: "addition" });
+                    break;
+                }
+                case "substraction": {
+                    this.$router.push({ name: "substraction" });
+                    break;
+                }
+                case "multiplication": {
+                    this.$router.push({ name: "multiplication" });
+                    break;
+                }
+                case "division": {
+                    this.$router.push({ name: "division" });
+                    break;
+                }
+                case "square_root": {
+                    this.$router.push({ name: "square_root" });
+                    break;
+                }
+                case "random_string": {
+                    this.$router.push({ name: "random_string" });
+                    break;
+                }
+                default: {
+                    this.$router.push({ name: "home" });
+                }
+            }
         },
-        metodo_pago: 'efectivo',
-        finded: false,
-        snackbar: false,
-        snackbar_msg: '',
-        snackbar_timeout: 2000,
-        userinfo: {username: '', user_id: ''},
-        loader: null,
-        loading: false,
-        menu_items: [
-          { type: 'addition', icon: 'mdi-plus-circle' },
-          { type: 'substraction', icon: 'mdi-minus-circle' },
-          { type: 'multiplication', icon: 'mdi-close-circle' },
-          { type: 'division', icon: 'mdi-division-box' },
-          { type: 'square_root', icon: 'mdi-square-root-box' },
-          { type: 'random_string', icon: 'mdi-code-string' },
-        ],
-      
-     }
-  },
-  methods:{
-    logout(){
-      this.loader = 'loading'
-      localStorage.removeItem('user-info')
-      setTimeout(()=>{
-        this.$router.push({name: 'login'})
-      },1000)
-      
+        deleteItem(index: any) {
+            alert(index);
+        },
+        check_scheme() {
+            if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                this.themeColor = "dark";
+            }
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
+                const newColorScheme = event.matches ? "dark" : "light";
+                this.themeColor = newColorScheme;
+            });
+        },
+        async getRecords(user_id: any) {
+            this.records = [];
+            await axios.post(import.meta.env.VITE_API_URL + "operations/" + user_id)
+                .then(res => {
+                res.data.forEach((item: any) => {
+                    this.records.push(item);
+                });
+            })
+                .catch(err => {
+                this.msgWindow.msg = err;
+                this.msgWindow.title = "Error";
+                this.msgWindow.show = true;
+            });
+        }
     },
-    handleFunc(action: string){
-      this.snackbar_msg=action
-      this.snackbar=true
-      switch(action){
-        case 'records':{
-          this.$router.push({name: 'home'})
-          break
-        }
-        case 'addition':{
-          this.$router.push({name: 'addition'})
-          break
-        }
-        case 'substraction':{
-          this.$router.push({name: 'substraction'})
-          break
-        }
-        case 'multiplication':{
-          this.$router.push({name: 'multiplication'})
-          break
-        }
-        case 'division':{
-          this.$router.push({name: 'division'})
-          break
-        }
-        case 'square_root':{
-          this.$router.push({name: 'square_root'})
-          break
-        }
-        case 'random_string':{
-          this.$router.push({name: 'random_string'})
-          break
-        }
-        default:{
-          this.$router.push({name: 'home'})
-        }
-      }
-      
+    watch: {
+        loader() {
+            const l = this.loader;
+            this[l] = !this[l];
+            setTimeout(() => (this[l] = false), 1000);
+            this.loader = null;
+        },
     },
-    
-    deleteItem(index: any) {
-      alert(index)
+    mounted() {
+        this.check_scheme();
+        let user = localStorage.getItem("user-info");
+        if (user) {
+            this.userinfo = JSON.parse(user);
+            this.getRecords(this.userinfo.user_id);
+        }
+        let balance = localStorage.getItem("balance");
+        if (balance) {
+            this.balance = balance;
+        }
     },
-    check_scheme(){
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        this.themeColor = 'dark'
-      }
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-        const newColorScheme = event.matches ? "dark" : "light";
-          this.themeColor = newColorScheme
-      })
+    beforeCreate() {
+        let usercheck = localStorage.getItem("user-info");
+        if (!usercheck) {
+            this.$router.push({ name: "login" });
+        }
+        else {
+            this.userinfo = JSON.parse(usercheck);
+        }
     },
-    
-    async getRecords(user_id: any){
-      this.records = []
-      await axios.post(import.meta.env.VITE_API_URL+'operations/'+user_id)
-      .then(res => {
-        res.data.forEach(item => {
-          this.records.push(item)
-        })
-      })
-      .catch(err => { 
-            alert(err)
-          })
-    }
-
-  },
-  watch: {
-    loader () {
-      const l = this.loader
-      this[l] = !this[l]
-      setTimeout(() => (this[l] = false), 1000)
-      this.loader = null
-    },
-  },
-  mounted(){
-    this.check_scheme()
-    let user = localStorage.getItem('user-info')
-    if(user){
-      this.userinfo = JSON.parse(user)
-      this.getRecords(this.userinfo.user_id)
-    }
-  },
-  beforeCreate(){
-    let usercheck = localStorage.getItem('user-info')
-    if(!usercheck){
-      this.$router.push({ name: 'login' })
-    }else{
-      this.userinfo = JSON.parse(usercheck)
-    }
-  }
 })
 </script>
 <style>

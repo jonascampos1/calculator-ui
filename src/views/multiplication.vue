@@ -55,7 +55,7 @@
           <v-col>
             <v-sheet rounded="xl">
               <v-row justify="center">
-                <h1 class="ml-5">Addition</h1>
+                <h1 class="ml-5">Multiplication</h1>
               </v-row>
               <v-row justify="center">
                 <v-card width="300" variant="flat">
@@ -69,7 +69,7 @@
                         :rules="[rules.number, rules.required]" 
                         hint="Valid number">
                       </v-text-field>
-                      <h1>+</h1>
+                      <h1>*</h1>
                       <v-text-field 
                         class="ml-1" 
                         variant="outlined" 
@@ -147,44 +147,43 @@ export default defineComponent({
     name: "test",
     data() {
         return {
-          checkBalance: false,
-          balance: "0",
-          result: "0",
-          valid: false,
-          v1: 0,
-          v2: 0,
-          themeColor: "light",
-          msgWindow: {
-              show: false,
-              title: "",
-              msg: ""
-          },
-          snackbar: false,
-          snackbar_msg: "",
-          snackbar_timeout: 2000,
-          userinfo: { username: "", user_id: "" },
-          loader: null,
-          loading: false,
-          loadingOp: false,
-          menu_items: [
-              { type: "addition", icon: "mdi-plus-circle" },
-              { type: "substraction", icon: "mdi-minus-circle" },
-              { type: "multiplication", icon: "mdi-close-circle" },
-              { type: "division", icon: "mdi-division-box" },
-              { type: "square_root", icon: "mdi-square-root-box" },
-              { type: "random_string", icon: "mdi-code-string" },
-          ],
-          rules: {
-              number: (value: any) => {
-                  return /^[0-9]*$/.test(value) || "Only numbers";
-              },
-              required: (v: any) => !!v || "Number is required",
-          }
-      };
+            balance: "0",
+            result: "0",
+            valid: false,
+            v1: 0,
+            v2: 0,
+            themeColor: "light",
+            msgWindow: {
+                show: false,
+                title: "",
+                msg: ""
+            },
+            snackbar: false,
+            snackbar_msg: "",
+            snackbar_timeout: 2000,
+            userinfo: { username: "", user_id: "" },
+            loader: null,
+            loading: false,
+            loadingOp: false,
+            menu_items: [
+                { type: "addition", icon: "mdi-plus-circle" },
+                { type: "substraction", icon: "mdi-minus-circle" },
+                { type: "multiplication", icon: "mdi-close-circle" },
+                { type: "division", icon: "mdi-division-box" },
+                { type: "square_root", icon: "mdi-square-root-box" },
+                { type: "random_string", icon: "mdi-code-string" },
+            ],
+            rules: {
+                number: (value: any) => {
+                    return /^[0-9]*$/.test(value) || "Only numbers";
+                },
+                required: (v: any) => !!v || "Number is required",
+            }
+        };
     },
     methods: {
       async check_Balance(){
-        await axios.post(import.meta.env.VITE_API_URL + "operations/cost/addition")
+        await axios.post(import.meta.env.VITE_API_URL + "operations/cost/multiplication")
           .then(res => {
             const balance = Number(this.balance)
             const cost = Number(res.data.cost)
@@ -203,26 +202,23 @@ export default defineComponent({
         })
       },
       async getResult() {
-        (this.loader as any) = "loadingOp";
-        const data = {
-            v1: Number(this.v1),
-            v2: Number(this.v2),
-            user_id: Number(this.userinfo.user_id),
-            user_balance: this.balance
-        }
-        await axios.post(import.meta.env.VITE_API_URL + "sum", data)
-            .then(res => {
-            this.result = res.data.result;
-            this.snackbar_msg = res.data.result;
-            this.snackbar = true;
-            this.balance = res.data.user_balance;
-            localStorage.setItem('balance',this.balance)
-        })
-        .catch(err => {
-          this.msgWindow.msg="Error trying to get the operation result"
-                this.msgWindow.title="Error"
-                this.msgWindow.show= true
-        })
+          (this.loader as any) = "loadingOp";
+          const data = {
+              v1: Number(this.v1),
+              v2: Number(this.v2),
+              user_id: Number(this.userinfo.user_id),
+              user_balance: this.balance
+          };
+          await axios.post(import.meta.env.VITE_API_URL + "mult", data)
+              .then(res => {
+              this.result = res.data.result;
+              this.snackbar_msg = res.data.result;
+              this.snackbar = true;
+              this.balance = res.data.user_balance;
+              localStorage.setItem('balance',this.balance)
+          })
+              .catch(err => {
+          });
       },
       focusInit() {
           (this.$refs.v1 as any).focus();
@@ -272,14 +268,14 @@ export default defineComponent({
         }
       },
       check_scheme() {
-          if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-              this.themeColor = "dark";
-          }
-          window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
-              const newColorScheme = event.matches ? "dark" : "light";
-              this.themeColor = newColorScheme;
-          });
-        },
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            this.themeColor = "dark";
+        }
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
+          const newColorScheme = event.matches ? "dark" : "light";
+          this.themeColor = newColorScheme;
+        });
+      }
     },
     watch: {
         loader() {

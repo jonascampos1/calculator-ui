@@ -94,31 +94,31 @@ export default defineComponent({
         login_success: false,
         login_error: false,
         rules: {
-          uppercase: value => {
+          uppercase: (value: any) => {
             //For non-latin letters also
             return (value && value.toLowerCase() !== value) || 'At least 1 letter'
           },
-          uppercaseEn: value => {
+          uppercaseEn: (value: any) => {
             //For latin letters only
             return /[A-Z]/.test(value) || 'At least 1 uppercase letter (A-Z only)'
           },
-          lowercaseEn: value => {
+          lowercaseEn: (value: any) => {
             //For latin letters only
             return /[a-z]/.test(value) || 'At least 1 lowercase letter (a-z only)'
           },
-          number: value => {
+          number: (value: any) => {
             return /\d/.test(value) || 'At least 1 number'
           },
-          special: value => {
+          special: (value: any) => {
             return /[!@#\$%\^&\*]/.test(value) || 'At least 1 special symbol'
           },
-          length: value => {
+          length: (value: any) => {
             return (value && value.length >= 8) || 'Min password length: 8 symbols'
           }
         },
         emailRules: [
-        v => !!v || 'E-mail is required as username',
-        v => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid',
+        (v: any) => !!v || 'E-mail is required as username',
+        (v: any) => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid',
       ],
       }
     },
@@ -132,12 +132,12 @@ export default defineComponent({
     },
     methods:{
       focusInit(){
-        this.$refs.userinput.focus()
+        (this.$refs.userinput as any).focus()
       },
-      is_number(v){
+      is_number(v: any){
         if(/^\d+$/.test(v)) return true
       },
-      onlyleters(v){
+      onlyleters(v: any){
         if(/^[A-Za-z]+$/.test(v)) return true
       },
       async submit(){
@@ -150,6 +150,7 @@ export default defineComponent({
             },1000)
 
             localStorage.setItem('user-info', JSON.stringify(res.data))
+            localStorage.setItem('balance', '20')
             
             setTimeout(()=>{
               this.login_success=false
