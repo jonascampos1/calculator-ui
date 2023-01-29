@@ -90,7 +90,7 @@
                     v-for="(item, index) in records"
                   >
                     
-                    <td class="text-left ma-0 pa-1"><v-icon @click="deleteItem(index)" color="red">mdi-delete</v-icon></td>
+                    <td class="text-left ma-0 pa-1"><v-icon @click="deleteItem(item.id)" color="red">mdi-delete</v-icon></td>
                     <td>{{ item.id }}</td>
                     <td class="text-center">{{ item.operation_id }}</td>
                     <td class="text-right">{{ item.user_id }}</td>
@@ -176,7 +176,8 @@ export default defineComponent({
             snackbar_msg: "",
             snackbar_timeout: 2000,
             userinfo: { username: "", user_id: "" },
-            
+            loader: null,
+            loading: false,
             menu_items: [
                 { type: "addition", icon: "mdi-plus-circle" },
                 { type: "substraction", icon: "mdi-minus-circle" },
@@ -225,8 +226,23 @@ export default defineComponent({
                 }
             }
         },
-        deleteItem(index: any) {
-            alert(index);
+        logout() {
+          (this.loader as any) = "loading";
+          localStorage.removeItem("user-info");
+          setTimeout(() => {
+              this.$router.push({ name: "login" });
+          }, 1000);
+        },
+        async deleteItem(id: any) {
+            const res = axios.delete(import.meta.env.VITE_API_URL + "records/" + id)
+            .then(res => {
+                this.getRecords(this.userinfo.user_id)
+            })
+                .catch(err => {
+                this.msgWindow.msg = err;
+                this.msgWindow.title = "Error";
+                this.msgWindow.show = true;
+            });
         },
         check_scheme() {
             if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -239,7 +255,7 @@ export default defineComponent({
         },
         async getRecords(user_id: any) {
             this.records = [];
-            await axios.post(import.meta.env.VITE_API_URL + "operations/" + user_id)
+            await axios.post(import.meta.env.VITE_API_URL + "records/" + user_id)
                 .then(res => {
                 res.data.forEach((item: any) => {
                     this.records.push(item);
