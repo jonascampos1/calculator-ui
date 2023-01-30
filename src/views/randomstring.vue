@@ -57,6 +57,7 @@
               <v-row justify="center">
                 <h1 class="ml-5">Random String</h1>
               </v-row>
+              <v-row justify="center"><h5 class="ml-5">Cost: {{ cost }} </h5></v-row>
               <v-row justify="center">
                 <v-card width="300" variant="flat">
                   <v-form ref="form" v-model="valid" lazy-validation @submit.prevent="check_Balance" id="opForm">
@@ -133,6 +134,7 @@ export default defineComponent({
     name: "test",
     data() {
         return {
+            cost: 0,
             balance: "0",
             result: "",
             valid: false,
@@ -168,21 +170,32 @@ export default defineComponent({
         };
     },
     methods: {
-      async check_Balance(){
-        await axios.post(import.meta.env.VITE_API_URL + "operations/cost/random_string")
-          .then(res => {
-            const balance = Number(this.balance)
-            const cost = Number(res.data.cost)
-          if((balance-cost)>=0){
-            this.getResult()
-          }else{
-            this.msgWindow.msg="You don´t have enough credit for this operation, cost:"+cost
-            this.msgWindow.title="Credit"
-            this.msgWindow.show= true
-          }
+      async getCost(operation: any) {
+        await axios.post(import.meta.env.VITE_API_URL + "operations/cost/" + operation)
+            .then(res => {
+              this.cost=res.data.cost
         })
         .catch(err => {
-          this.msgWindow.msg="Error trying to get the operation cost"
+          console.log('No cost')
+        })
+      },
+      async check_Balance(){
+        const data = {
+            operation: 'random_string',
+            user_id: this.userinfo.user_id
+        }
+        await axios.post(import.meta.env.VITE_API_URL + "checkbalance", data)
+          .then(res => {
+            if(res.data.check){
+              this.getResult()
+            }else{
+              this.msgWindow.msg="Credit not enough for this operation"
+              this.msgWindow.title="Error"
+              this.msgWindow.show= true
+            }
+        })
+        .catch(err => {
+          this.msgWindow.msg="Error trying to get the operation cost"+err
           this.msgWindow.title="Error"
           this.msgWindow.show= true
         })
@@ -190,9 +203,8 @@ export default defineComponent({
       async getResult() {
         (this.loader as any) = "loadingOp";
         const data = {
-            user_id: Number(this.userinfo.user_id),
-            user_balance: this.balance
-        };
+            user_id: Number(this.userinfo.user_id)          
+          }
         await axios.post(import.meta.env.VITE_API_URL + "random_string", data)
             .then(res => {
             this.result = res.data.result;
@@ -286,6 +298,9 @@ export default defineComponent({
         this.userinfo = JSON.parse(usercheck);
     }
   },
+  created(){
+      this.getCost('random_string')
+    }
 })
 </script>
 <style>

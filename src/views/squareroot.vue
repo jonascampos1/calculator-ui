@@ -57,6 +57,7 @@
               <v-row justify="center">
                 <h1 class="ml-5">Square root</h1>
               </v-row>
+              <v-row justify="center"><h5 class="ml-5">Cost: {{ cost }} </h5></v-row>
               <v-row justify="center">
                 <v-card width="300" variant="flat">
                   <v-form ref="form" v-model="valid" lazy-validation @submit.prevent="check_Balance" id="opForm">
@@ -140,6 +141,7 @@ export default defineComponent({
     name: "test",
     data() {
         return {
+            cost: 0,
             balance: "0",
             result: "0",
             valid: false,
@@ -175,21 +177,32 @@ export default defineComponent({
         };
     },
     methods: {
-      async check_Balance(){
-        await axios.post(import.meta.env.VITE_API_URL + "operations/cost/square_root")
-          .then(res => {
-            const balance = Number(this.balance)
-            const cost = Number(res.data.cost)
-          if((balance-cost)>=0){
-            this.getResult()
-          }else{
-            this.msgWindow.msg="You don´t have enough credit for this operation, cost:"+cost
-            this.msgWindow.title="Credit"
-            this.msgWindow.show= true
-          }
+      async getCost(operation: any) {
+        await axios.post(import.meta.env.VITE_API_URL + "operations/cost/" + operation)
+            .then(res => {
+              this.cost=res.data.cost
         })
         .catch(err => {
-          this.msgWindow.msg="Error trying to get the operation cost"
+          console.log('No cost')
+        })
+      },
+      async check_Balance(){
+        const data = {
+            operation: 'square_root',
+            user_id: this.userinfo.user_id
+        }
+        await axios.post(import.meta.env.VITE_API_URL + "checkbalance", data)
+          .then(res => {
+            if(res.data.check){
+              this.getResult()
+            }else{
+              this.msgWindow.msg="Credit not enough for this operation"
+              this.msgWindow.title="Error"
+              this.msgWindow.show= true
+            }
+        })
+        .catch(err => {
+          this.msgWindow.msg="Error trying to get the operation cost"+err
           this.msgWindow.title="Error"
           this.msgWindow.show= true
         })
@@ -198,9 +211,8 @@ export default defineComponent({
         (this.loader as any) = "loadingOp";
         const data = {
             v1: Number(this.v1),
-            user_id: Number(this.userinfo.user_id),
-            user_balance: this.balance
-        };
+            user_id: Number(this.userinfo.user_id)
+        }
         await axios.post(import.meta.env.VITE_API_URL + "square_root", data)
             .then(res => {
             this.result = res.data.result;
@@ -298,6 +310,9 @@ beforeCreate() {
         this.userinfo = JSON.parse(usercheck);
     }
   },
+  created(){
+      this.getCost('square_root')
+    }
 })
 </script>
 <style>

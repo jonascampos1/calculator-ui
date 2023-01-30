@@ -257,9 +257,21 @@ export default defineComponent({
             this.records = [];
             await axios.post(import.meta.env.VITE_API_URL + "records/" + user_id)
                 .then(res => {
+                this.getBalance(user_id)
                 res.data.forEach((item: any) => {
-                    this.records.push(item);
+                    this.records.push(item)
                 });
+            })
+                .catch(err => {
+                this.msgWindow.msg = err;
+                this.msgWindow.title = "Error";
+                this.msgWindow.show = true;
+            });
+        },
+        async getBalance(user_id: any) {
+            await axios.post(import.meta.env.VITE_API_URL + "userbalance/" + user_id)
+                .then(res => {
+                  this.balance=res.data.balance
             })
                 .catch(err => {
                 this.msgWindow.msg = err;
@@ -281,12 +293,11 @@ export default defineComponent({
         let user = localStorage.getItem("user-info");
         if (user) {
             this.userinfo = JSON.parse(user);
+            //this.getBalance(this.userinfo.user_id)
             this.getRecords(this.userinfo.user_id);
+            
         }
-        let balance = localStorage.getItem("balance");
-        if (balance) {
-            this.balance = balance;
-        }
+        
     },
     beforeCreate() {
         let usercheck = localStorage.getItem("user-info");

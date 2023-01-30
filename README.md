@@ -1,4 +1,4 @@
-# iglesia-vida-ui-app
+# calculator-ui-app
 
 This template should help get you started developing with Vue 3 in Vite.
 
@@ -25,6 +25,12 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ```sh
 npm install
+```
+
+## Second create a .env file on project folder and add:
+
+```sh
+VITE_API_URL="http://localhost:3000/api/v1/"
 ```
 
 ### Compile and Hot-Reload for Development

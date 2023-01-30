@@ -148,13 +148,11 @@ export default defineComponent({
             setTimeout(()=> {
               this.login_success=true
             },1000)
-
-            localStorage.setItem('user-info', JSON.stringify(res.data))
-            localStorage.setItem('balance', '20')
+            const user = JSON.stringify(res.data)
+            localStorage.setItem('user-info', user)
             
             setTimeout(()=>{
               this.login_success=false
-              let user = JSON.stringify(res.data)
               this.$router.push({name: 'home'})
             },2000)
           })
