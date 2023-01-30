@@ -219,7 +219,7 @@ export default defineComponent({
             this.snackbar_msg = res.data.result;
             this.snackbar = true;
             this.balance = res.data.user_balance;
-            localStorage.setItem('balance',this.balance)
+            sessionStorage.setItem('balance',this.balance)
         })
         .catch(err => {
           this.msgWindow.msg="Error trying to get the operation result"
@@ -253,7 +253,7 @@ export default defineComponent({
       },
       logout() {
           (this.loader as any) = "loading";
-          localStorage.removeItem("user-info");
+          sessionStorage.removeItem("user-info");
           setTimeout(() => {
               this.$router.push({ name: "login" });
           }, 1000);
@@ -316,14 +316,14 @@ export default defineComponent({
     mounted() {
         this.focusInit();
         this.check_scheme();
-        let user = localStorage.getItem("user-info");
+        let user = sessionStorage.getItem("user-info");
         if (user) {
             this.userinfo = JSON.parse(user);
             this.getBalance(this.userinfo.user_id)
         }
     },
     beforeCreate() {
-        let usercheck = localStorage.getItem("user-info");
+        let usercheck = sessionStorage.getItem("user-info");
         if (!usercheck) {
             this.$router.push({ name: "login" });
         }

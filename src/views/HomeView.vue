@@ -102,9 +102,15 @@
                 </tbody>
               </v-table>
             </v-sheet>
-            <v-col> 
+            <v-col>
+              <div class="text-center">
+                <v-pagination
+                  v-model="page"
+                  :length="pages"
+                ></v-pagination>
+              </div>
                 <v-row justify="space-between" class="mt-1">
-                  <v-btn color="red" @click="getRecords(`${userinfo.user_id}`)">Actualizar</v-btn>
+                  <v-btn color="red" @click="getRecords(`${userinfo.user_id}`,)">Actualizar</v-btn>
                 </v-row>
               </v-col>
             <v-footer color="transparent"  
@@ -161,31 +167,37 @@ export default defineComponent({
     name: "test",
     data() {
         return {
-            balance: "",
-            sel: 1,
-            records: [{ id: "", operation_id: "", user_id: "", amount: "", user_balance: "", operation_response: "", date: "" }],
-            themeColor: "light",
-            msgWindow: {
-                show: false,
-                title: "",
-                msg: ""
-            },
-            metodo_pago: "efectivo",
-            finded: false,
-            snackbar: false,
-            snackbar_msg: "",
-            snackbar_timeout: 2000,
-            userinfo: { username: "", user_id: "" },
-            loader: null,
-            loading: false,
-            menu_items: [
-                { type: "addition", icon: "mdi-plus-circle" },
-                { type: "substraction", icon: "mdi-minus-circle" },
-                { type: "multiplication", icon: "mdi-close-circle" },
-                { type: "division", icon: "mdi-division-box" },
-                { type: "square_root", icon: "mdi-square-root-box" },
-                { type: "random_string", icon: "mdi-code-string" },
-            ],
+          pages: '0',
+          total_records: 0,
+          page: 1,
+          order_field: 'id',
+          order: 'asc',
+          elements_peer_page: '10',
+          balance: "",
+          sel: 1,
+          records: [{ id: "", operation_id: "", user_id: "", amount: "", user_balance: "", operation_response: "", date: "" }],
+          themeColor: "light",
+          msgWindow: {
+            show: false,
+            title: "",
+            msg: ""
+          },
+          metodo_pago: "efectivo",
+          finded: false,
+          snackbar: false,
+          snackbar_msg: "",
+          snackbar_timeout: 2000,
+          userinfo: { username: "", user_id: "" },
+          loader: null,
+          loading: false,
+          menu_items: [
+            { type: "addition", icon: "mdi-plus-circle" },
+            { type: "substraction", icon: "mdi-minus-circle" },
+            { type: "multiplication", icon: "mdi-close-circle" },
+            { type: "division", icon: "mdi-division-box" },
+            { type: "square_root", icon: "mdi-square-root-box" },
+            { type: "random_string", icon: "mdi-code-string" },
+          ],
         };
     },
     methods: {
@@ -194,19 +206,19 @@ export default defineComponent({
             this.snackbar = true;
             switch (action) {
                 case "records": {
-                    this.$router.push({ name: "home" });
+                    this.$router.push({ name: "home" })
                     break;
                 }
                 case "addition": {
-                    this.$router.push({ name: "addition" });
+                    this.$router.push({ name: "addition" })
                     break;
                 }
                 case "substraction": {
-                    this.$router.push({ name: "substraction" });
+                    this.$router.push({ name: "substraction" })
                     break;
                 }
                 case "multiplication": {
-                    this.$router.push({ name: "multiplication" });
+                    this.$router.push({ name: "multiplication" })
                     break;
                 }
                 case "division": {
@@ -226,15 +238,16 @@ export default defineComponent({
                 }
             }
         },
+        
         logout() {
           (this.loader as any) = "loading";
-          localStorage.removeItem("user-info");
+          sessionStorage.removeItem("user-info");
           setTimeout(() => {
-              this.$router.push({ name: "login" });
+              this.$router.push({ name: "login" })
           }, 1000);
         },
         async deleteItem(id: any) {
-            const res = axios.delete(import.meta.env.VITE_API_URL + "records/" + id)
+            const res = axios.delete(import.meta.env.VITE_API_URL + "records/"+id)
             .then(res => {
                 this.getRecords(this.userinfo.user_id)
             })
@@ -249,24 +262,33 @@ export default defineComponent({
                 this.themeColor = "dark";
             }
             window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
-                const newColorScheme = event.matches ? "dark" : "light";
+                const newColorScheme = event.matches ? "dark" : "light"
                 this.themeColor = newColorScheme;
             });
         },
         async getRecords(user_id: any) {
             this.records = [];
-            await axios.post(import.meta.env.VITE_API_URL + "records/" + user_id)
+            const data = { 
+              user_id: user_id, 
+              page: this.page, 
+              order_field: this.order_field, 
+              order: this.order, 
+              elements_peer_page: this.elements_peer_page 
+            }
+            await axios.post(import.meta.env.VITE_API_URL + "records", data)
                 .then(res => {
                 this.getBalance(user_id)
                 res.data.forEach((item: any) => {
                     this.records.push(item)
-                });
+                })
+                
             })
-                .catch(err => {
-                this.msgWindow.msg = err;
-                this.msgWindow.title = "Error";
-                this.msgWindow.show = true;
-            });
+            .catch(err => {
+              this.msgWindow.msg = err
+              this.msgWindow.title = "Error"
+              this.msgWindow.show = true
+            })
+            this.getTotal()
         },
         async getBalance(user_id: any) {
             await axios.post(import.meta.env.VITE_API_URL + "userbalance/" + user_id)
@@ -275,8 +297,21 @@ export default defineComponent({
             })
                 .catch(err => {
                 this.msgWindow.msg = err;
-                this.msgWindow.title = "Error";
-                this.msgWindow.show = true;
+                this.msgWindow.title = "Error"
+                this.msgWindow.show = true
+            });
+        },
+        async getTotal() {
+          const data= {user_id: this.userinfo.user_id}
+            await axios.post(import.meta.env.VITE_API_URL + "records_total", data)
+                .then(res => {
+                  this.total_records=Number(res.data.total)/Number(this.elements_peer_page)
+                  this.pages = String(Math.ceil(this.total_records))
+            })
+            .catch(err => {
+                this.msgWindow.msg = err;
+                this.msgWindow.title = "Error"
+                this.msgWindow.show = true
             });
         }
     },
@@ -287,27 +322,28 @@ export default defineComponent({
             setTimeout(() => (this[l] = false), 1000);
             this.loader = null;
         },
+        page(){
+          this.getRecords(this.userinfo.user_id)
+        }
     },
     mounted() {
         this.check_scheme();
-        let user = localStorage.getItem("user-info");
+        let user = sessionStorage.getItem("user-info");
         if (user) {
             this.userinfo = JSON.parse(user);
-            //this.getBalance(this.userinfo.user_id)
-            this.getRecords(this.userinfo.user_id);
-            
+            this.getRecords(Number(this.userinfo.user_id));
         }
         
     },
     beforeCreate() {
-        let usercheck = localStorage.getItem("user-info");
+        let usercheck = sessionStorage.getItem("user-info");
         if (!usercheck) {
-            this.$router.push({ name: "login" });
+            this.$router.push({ name: "login" })
         }
         else {
-            this.userinfo = JSON.parse(usercheck);
+            this.userinfo = JSON.parse(usercheck)
         }
-    },
+    }
 })
 </script>
 <style>

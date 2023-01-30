@@ -149,7 +149,7 @@ export default defineComponent({
               this.login_success=true
             },1000)
             const user = JSON.stringify(res.data)
-            localStorage.setItem('user-info', user)
+            sessionStorage.setItem('user-info', user)
             
             setTimeout(()=>{
               this.login_success=false
@@ -168,7 +168,7 @@ export default defineComponent({
     mounted(){
       
       this.focusInit()
-      let user= localStorage.getItem('user-info')
+      let user= sessionStorage.getItem('user-info')
       if(user){
         this.$router.push({name: 'home'})
       }
