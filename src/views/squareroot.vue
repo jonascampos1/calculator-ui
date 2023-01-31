@@ -224,6 +224,17 @@ export default defineComponent({
             .catch(err => {
         });
     },
+    async getBalance(user_id: any) {
+            await axios.post(import.meta.env.VITE_API_URL + "userbalance/" + user_id)
+                .then(res => {
+                  this.balance=res.data.balance
+            })
+                .catch(err => {
+                this.msgWindow.msg = err;
+                this.msgWindow.title = "Error"
+                this.msgWindow.show = true
+            });
+        },
     focusInit() {
         (this.$refs.v1 as any).focus();
     },
@@ -290,17 +301,14 @@ export default defineComponent({
     },
   },
   mounted() {
-    this.focusInit();
-    this.check_scheme();
-    let user = sessionStorage.getItem("user-info");
-    if (user) {
-        this.userinfo = JSON.parse(user);
-    }
-    let balance = sessionStorage.getItem("balance");
-    if (balance) {
-        this.balance = balance;
-    }
-},
+        this.focusInit();
+        this.check_scheme();
+        let user = sessionStorage.getItem("user-info");
+        if (user) {
+            this.userinfo = JSON.parse(user);
+            this.getBalance(this.userinfo.user_id)
+        }
+    },
 beforeCreate() {
     let usercheck = sessionStorage.getItem("user-info");
     if (!usercheck) {

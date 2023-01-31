@@ -10,7 +10,7 @@
           max-width="74"
           src="src/assets/images/pos.png">
         </v-img>
-        <h1>Punto de venta</h1>
+        <h1>Calculator</h1>
       </v-row>
       
       <v-row justify="center">

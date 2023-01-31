@@ -275,12 +275,21 @@ export default defineComponent({
               order: this.order, 
               elements_peer_page: this.elements_peer_page 
             }
-            await axios.post(import.meta.env.VITE_API_URL + "records", data)
-                .then(res => {
-                this.getBalance(user_id)
-                res.data.forEach((item: any) => {
-                    this.records.push(item)
-                })
+            await axios.post(import.meta.env.VITE_API_URL + "records", data,
+              {
+                // query URL without using browser cache
+                headers: {
+                  'Cache-Control': 'no-cache',
+                  'Pragma': 'no-cache',
+                  'Expires': '0',
+                },
+              }
+            )
+              .then(res => {
+              this.getBalance(user_id)
+              res.data.forEach((item: any) => {
+                  this.records.push(item)
+              })
                 
             })
             .catch(err => {
@@ -303,7 +312,16 @@ export default defineComponent({
         },
         async getTotal() {
           const data= {user_id: this.userinfo.user_id}
-            await axios.post(import.meta.env.VITE_API_URL + "records_total", data)
+            await axios.post(import.meta.env.VITE_API_URL + "records_total", data,
+            {
+                // query URL without using browser cache
+                headers: {
+                  'Cache-Control': 'no-cache',
+                  'Pragma': 'no-cache',
+                  'Expires': '0',
+                },
+              }
+            )
                 .then(res => {
                   this.total_records=Number(res.data.total)/Number(this.elements_peer_page)
                   this.pages = String(Math.ceil(this.total_records))

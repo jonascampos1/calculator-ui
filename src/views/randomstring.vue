@@ -214,8 +214,19 @@ export default defineComponent({
             sessionStorage.setItem('balance',this.balance)
         })
             .catch(err => {
-        });
+        })
       },
+      async getBalance(user_id: any) {
+            await axios.post(import.meta.env.VITE_API_URL + "userbalance/" + user_id)
+                .then(res => {
+                  this.balance=res.data.balance
+            })
+                .catch(err => {
+                this.msgWindow.msg = err;
+                this.msgWindow.title = "Error"
+                this.msgWindow.show = true
+            });
+        },
       logout() {
         (this.loader as any) = "loading";
         sessionStorage.removeItem("user-info");
@@ -279,16 +290,13 @@ export default defineComponent({
     },
   },
   mounted() {
-    this.check_scheme();
-    let user = sessionStorage.getItem("user-info");
-    if (user) {
-        this.userinfo = JSON.parse(user);
-    }
-    let balance = sessionStorage.getItem("balance");
-    if (balance) {
-        this.balance = balance;
-    }
-  },
+        this.check_scheme();
+        let user = sessionStorage.getItem("user-info");
+        if (user) {
+            this.userinfo = JSON.parse(user);
+            this.getBalance(this.userinfo.user_id)
+        }
+    },
   beforeCreate() {
     let usercheck = sessionStorage.getItem("user-info");
     if (!usercheck) {
